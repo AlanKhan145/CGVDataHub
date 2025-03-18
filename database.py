@@ -4,36 +4,41 @@ from config import MONGO_URL, DATABASE_NAME
 
 def get_database():
     """
-    Kết nối đến MongoDB và trả về đối tượng database.
+    Kết nối đến MongoDB và trả về đối tượng cơ sở dữ liệu.
 
     Returns:
-        Database: Đối tượng database nếu kết nối thành công.
-        None: Nếu có lỗi xảy ra trong quá trình kết nối.
+        Database | None:
+            - Đối tượng database nếu kết nối thành công.
+            - None nếu có lỗi xảy ra.
     """
     try:
         client = MongoClient(MONGO_URL)
-        db = client[DATABASE_NAME]
-        print(f"Kết nối thành công đến database '{DATABASE_NAME}'")
-        return db
-    except Exception as e:
-        print(f"Lỗi kết nối MongoDB: {e}")
+        database = client[DATABASE_NAME]
+        print(f"Kết nối thành công đến cơ sở dữ liệu: '{DATABASE_NAME}'")
+        return database
+    except Exception as loi:
+        print(f"Lỗi khi kết nối MongoDB: {loi}")
         return None
 
 
-def save_to_database(films_col, data):
+def save_to_database(col, data):
     """
     Lưu hoặc cập nhật thông tin phim vào cơ sở dữ liệu.
 
-    :param films_col: Collection phim trong MongoDB.
-    :param data: Dữ liệu phim cần lưu.
+    Args:
+        col (Collection): Collection phim trong MongoDB.
+        data (dict): Dữ liệu phim cần lưu.
+
+    Returns:
+        None
     """
-    result = films_col.update_one(
+    result = col.update_one(
         {"title": data["title"]},
         {"$set": data},
         upsert=True
     )
 
     if result.matched_count == 0:
-        print(f"[✅] Thêm mới: {data['title']}")
+        print(f"Thêm mới: {data['title']}")
     else:
-        print(f"[♻️] Cập nhật: {data['title']}")
+        print(f"Cập nhật: {data['title']}")
